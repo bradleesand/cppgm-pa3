@@ -28,9 +28,9 @@ It contains a stub implementation of `ctrlexpr` with some _optional_ starter cod
 
 You will also want to reuse most of your code from PA2.
 
-### Mock `defined <identifier>`
+### Mock `defined` Implementation
 
-To scaffold the sub-expression `defined <identifier>`, `ctrlexpr` should use a mock implementation with the following functionality:
+As we do not have any macros defined in PA3, in order to test the `defined` operator, we will use a mock implementation with the following functionality:
 
 If the first UTF-8 code unit of the identifier is odd than return true, else return false.
 
@@ -96,7 +96,7 @@ A controlling expression is the sequence of tokens that appears in the Condition
     #if <controlling-expression> new-line
     #elif <controlling-expression> new-line
 
-If using the token names from PA2 it should match the Conditional Expression Grammar (given below).
+If using the token names from PA2 it should match the Controlling Expression Grammar (given below).
 
 The two missing productions from the grammar are `integral-literal` and `identifier_or_keyword`.
 
@@ -140,7 +140,7 @@ At this point try to read 16.1 Conditional Inclusion, there will be many "forwar
 
 	primary-expression:
 	    integral-literal      // see above
-	    OP_LPAREN conditional-expression OP_RPAREN
+	    OP_LPAREN controlling-expression OP_RPAREN
 	    defined identifier_or_keyword       // see above
 	    identifier_or_keyword		// evaluate as `0`
 
@@ -199,15 +199,15 @@ At this point try to read 16.1 Conditional Inclusion, there will be many "forwar
 	    logical-and-expression
 	    logical-or-expression OP_LOR logical-and-expression
 	
-	conditional-expression:
+	controlling-expression:
 	    logical-or-expression
-	    logical-or-expression OP_QMARK conditional-expression OP_COLON conditional-expression
+	    logical-or-expression OP_QMARK controlling-expression OP_COLON controlling-expression
 	    
 Notice that this grammar is unambiguous and has the precedence and associativity of operators built into it.
 
 ### Features
 
-The following does not need to necessarily occur in the order specified, however `ctrlexpr` should behave _as if_ they had.
+The following steps do not necessarily need to occur in the order specified, however `ctrlexpr` should behave _as if_ they had.
 
 First apply phase 1-3 to get a stream of `preprocessing-tokens`.
 
@@ -221,10 +221,10 @@ Check that there are no `invalid` tokens and that all `literal` tokens are of `i
 
 As per 16.2.4:
 
-> For the purposes of this token conversion and evaluation all signed and unsigned integer types act as if they have the same representation as, respectively, intmax_t
-or uintmax_t
+> For the purposes of this token conversion and evaluation all signed and unsigned integer types act as if they have the same representation as, respectively, `intmax_t`
+or `uintmax_t`
 
-`intmax_t` and `uintmax_t` are in `#include <cstdint>`.
+`intmax_t` and `uintmax_t` are in `#include <cstdint>`.  On the standard platform they are typedefs `long int` and `unsigned long int`, which are both 64-bit.
 
 Promote each `integral-literal` to one of these two types depending on if it is signed or unsigned.
 
@@ -251,7 +251,7 @@ and the following are unsigned:
 
 This can also be looked up with `std::numeric_limits<T>::is_signed`
 
-Parse the token sequence by the given grammar into a parse tree.  If it does not match the grammar output "error".
+Parse the token sequence by the `controlling-expression` grammar into a parse tree.  If it does not match the grammar output "error".
 
 Walk the tree in post-order evaluating each sub-expression up to the root.  The behaviour of each of the used operators are documented in clause 5 of the standard.  You do not need to read the entire clause, just the parts that deal with those operators used in the controlling expression grammar.
 
@@ -266,13 +266,15 @@ It is course defined that:
 
 ### Design Notes (Optional)
 
-One way to solve PA3 is to create another implementation of `IPPTokenStream` for PA3 that accumulates `preprocessing-tokens` until it gets `new-line` and then sends them off for evaluation and "post-tokenization".  You can create some other class like `CtrlExprEvaluator` that parses and evaluates the sequence of tokens.
+One way to solve PA3 is to create another implementation of `IPPTokenStream` for PA3 that accumulates `preprocessing-tokens` until it gets `new-line` and then sends them off for evaluation and "post-tokenization".  You can create some other class like `CtrlExprEvaluator` that parses and evaluates these sequences of tokens.
 
 To match the sequence of tokens to the grammar you will need to write a parser.  It is recommended to read chapter 4 of the dragon book if you have it.
 
-Although the PA3 grammar is LR(1) and you could in theory solve the assignment by writing an LR parser generation tool that takes the grammar and automatically generates a parser for it, that is _not recommended_ for this assignment.  There are two reasons.  The first is that it will take longer to implement than the recommended way.  The second is that although an LR parser is easy for this particular grammar, for C++ as a whole it is not the proven approach.
+Although the PA3 grammar is LR(1), and you could in theory solve the assignment by writing an LR parser generation tool that takes the grammar and automatically generates a parser for it, that is _not recommended_ for this assignment.  There are two reasons.  The first is that it will take longer to implement than the recommended way.  The second is that although an LR parser is easy for this particular grammar, for C++ as a whole it is not the proven approach.
 
-Most agree that a top-down approach makes it easier to deal with the special cases needed to parse C++.  For example, both GCC and Clang use a hand-written top-down approach.  It is true that some have succeeeded in writing LR parsers for C++ using disambiguation techniques like GLR, however we will be recommending and supporting "the typical top-down approach" in this course.  You should understand that there is contention on this point.  If you have your heart set on LR parsing than you may hand-write an LR parser generation tool, and build and execute this tool from your Makefile.  As per the usual course restrictions, you may not use a third-party parser generation tool - you have to write it yourself.  There is instructions in the back of dragon chapter 4 about how to do this.  GLR just means that you solve shift/reduce and reduce/reduce conflicts by searching both options in parallel - no such conflicts exist in this particular grammar.
+Most agree that a top-down approach makes it easier to deal with the special cases needed to parse C++.  For example, both GCC and Clang use a hand-written top-down approach.  It is true that some have succeeeded in writing LR parsers for C++ using disambiguation techniques like GLR, however we will be recommending and supporting "the typical top-down approach" in this course.  You should understand that there is contention on this point.
+
+> Side Note: If you are determined to ignore our advice and use LR parsing than you may hand-write an LR parser generation tool, and build and execute this tool from your Makefile.  As per the usual course restrictions, you may not use a third-party parser generation tool - you have to write it yourself.  The algorithms to do this are described in the second half of chapter 4 of the dragon book.  GLR is not covered in the dragon.  GLR just means that you solve shift/reduce and reduce/reduce conflicts by searching both options in parallel - but no such conflicts exist in this particular grammar.  To LR parse the larger C++ grammar you will need GLR.
 
 The recommended way to parse is to write a hand-written predictive top-down parser.  To deal with the left recursion in the PA3 grammar, you simply use iteration and manually preserve the associativity.
 
@@ -281,8 +283,8 @@ For example:
     T -> X
     T -> T + X
 
-For such a production it will match `X`, `X + X`, `X + X + X` and so on.  So we first parse `X`, then we lookahead to see if there is a `+`.  If there is, we parse `+ X` and repeat, if not we return what we have.  As the operator is left associative we build our parse tree (or evaluation order) leftward.
+Such a production will match `X`, `X + X`, `X + X + X` and so on.  So we first parse `X`, then we lookahead to see if there is a `+`.  If there is, we parse `+ X` and repeat.  If not we return what we have.  As the operator is left associative we build our parse tree (or evaluation order) leftward.
 
-If you implement the parser this way than in order to parse a "solitary primary", it will result in a deep call stack from `controlling-expression` all the way to `primary`.  That is ok as a solution to this assignment, we are not too worried about performance.  You should be aware that there is a technique in which you can collapse the calls to all the different binary operator expressions into one call.  This is achieved by keeping a precedence table and making decisions about how to build the parse tree based upon it.  If you have extra time after finishing this assignment, we encourage you to look into and implement this optimization.
+If you implement the parser in this way than in order to parse a simple expression like `42`, it will result in a deep call stack from `controlling-expression` all the way up to `primary`.  That is ok as a solution to this assignment, we are not too worried about performance.  You should be aware that there is a technique in which you can collapse the calls to all the different binary operator expressions into one call.  This is achieved by keeping a precedence table and making decisions about how to build the parse tree based upon it.  If you have extra time after finishing this assignment, we encourage you to look into and implement this optimization.
 
 It is also recommended that you keep your controlling expression parsing code separate from your future C++ expression parsing code.  Although you could use some common base for both, there are significant differences that are most likely not worth creating an abstract base for.  It will be better to keep the PA3 code encapsulated within your preprocessor.
