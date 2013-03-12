@@ -28,7 +28,7 @@ It contains a stub implementation of `ctrlexpr` with some _optional_ starter cod
 
 You will also want to reuse most of your code from PA2.
 
-### Mock defined <identifier>
+### Mock `defined <identifier>`
 
 To scaffold the sub-expression `defined <identifier>`, `ctrlexpr` should use a mock implementation with the following functionality:
 
@@ -50,7 +50,7 @@ In the event the logical source line is empty (contains only whitespace or nothi
 
 If the logical source line contains an invalid controlling expression (one that contains invalid tokens or does not match the grammar or semantics of a controlling expression), `ctrlexpr` should output one line containing `error`.
 
-In the event the logical source line contains a valid controlling expression, `ctrlexpr` should output a decimal literal as the result of the controlling expression.  In the case that the output is signed it should have no suffix.  In the event that the output is unsigned it should have the prefix `u` (lowercase).
+In the event the logical source line contains a valid controlling expression, `ctrlexpr` should output a decimal literal as the result of the controlling expression.  In the case that the output is signed it should have no suffix.  In the event that the output is unsigned it should have the suffix `u` (lowercase).
 
 At the end of output, `ctrlexpr` should output `eof` on a line by itself.
 
