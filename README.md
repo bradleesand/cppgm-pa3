@@ -226,6 +226,8 @@ or `uintmax_t`
 
 `intmax_t` and `uintmax_t` are in `#include <cstdint>`.  On the standard platform they are typedefs `long int` and `unsigned long int`, which are both 64-bit.
 
+> We will course-define the interpretation of this to mean that each `integral-literal` is interpreted as per its phase 7 PA2 post-tokenization type first.  Then after that, if it is signed it is promoted to `intmax_t`, and if it is unsigned it is promoted to `uintmax_t`.  For this course footnote 148 shall be considered a standard defect, and should be ignored.
+
 Promote each `integral-literal` to one of these two types depending on if it is signed or unsigned.
 
 It is course-defined (and by the ABI and bootstrap) that following integral types are signed:
