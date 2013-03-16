@@ -141,7 +141,8 @@ At this point try to read 16.1 Conditional Inclusion, there will be many "forwar
 	primary-expression:
 	    integral-literal      // see above
 	    OP_LPAREN controlling-expression OP_RPAREN
-	    defined identifier_or_keyword       // see above
+	    defined identifier_or_keyword     			  // see above:  defined id
+	    defined OP_LPAREN identifier_or_keyword OP_RPAREN       // alternative form: defined(id)
 	    identifier_or_keyword		// evaluate as `0`
 
 	unary-expression:
