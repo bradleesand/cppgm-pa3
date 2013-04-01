@@ -133,6 +133,8 @@ An `identifier_or_keyword` is simply an identifier in `preprocessing-token` cont
 
  - `true`, which is effectively evaluated as `1`
  - `defined` which has special meaning in a controlling expression
+
+> Note: For PA3, in the context of a preprocessor controlling expression only, we shall course-define the treatment of the identifier `true` to be evaluated the same as the integer literal `1`, and the identifier `false` to be evaluated the same as the integer literal `0`.  Note that this may conflict slightly with the standard requirements.
  
 At this point try to read 16.1 Conditional Inclusion, there will be many "forward" references to terminology that has not been required reading in the course yet, so don't worry if you don't understand everything.  The parts which you do understand should be sufficient to complete this assignment.
 
